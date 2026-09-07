@@ -15,6 +15,7 @@ const HOST: &str = "host";
 const USER_AGENT: &str = "user-agent";
 const ACCEPT: &str = "accept";
 
+const ALLOWED_ACTIONS: Vec<&str> = vec!["GET", "POST", "PATCH",];
 
 ///EG
 ///GET /hello HTTP/1.1
@@ -29,10 +30,15 @@ pub fn parse_request(req: &str) -> HashMap<String, String> {
         println!("Examining: {}", lower_line);
         if first {
             println!("We are in the first loop");
-            parsed_request.insert(RAW_REQ_URL.to_string(), line.to_string());
             //now we split it up some more
             let tokens: Vec<&str> = line.split_whitespace().collect();
             println!("We have {} tokens", tokens.len());
+            let allowd_action = ALLOWED_ACTIONS.iter().any(|a| a==&tokens[0].to_uppercase());
+            if !allowd_action {
+                return parsed_request
+            } 
+
+            parsed_request.insert(RAW_REQ_URL.to_string(), line.to_string());
             parsed_request.insert(ACTION.to_string(), tokens[0].to_string());
             parsed_request.insert(PATH.to_string(), tokens[1].to_string());
             parsed_request.insert(VERSION.to_string(), tokens[2].to_string());
@@ -53,6 +59,10 @@ pub fn parse_request(req: &str) -> HashMap<String, String> {
         }
     }
     parsed_request
+}
+
+pub fn construct_parsed_req_map(parsed_request: &mut HashMap<String, String>){
+
 }
 
 pub fn route_request(parsed_request: &HashMap<String, String>) -> anyhow::Result<()> {
