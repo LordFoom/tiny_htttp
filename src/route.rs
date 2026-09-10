@@ -1,4 +1,5 @@
 use std::collections::HashMap;
+use tracing::{debug, info, warn, instrument};
 
 #[derive(Debug)]
 pub enum Action {
@@ -22,17 +23,18 @@ const METHODS: &[&str] = &["GET", "POST", "PATCH"];
 ///Host: localhost:8080
 ///User-Agent: curl/8.21.0
 ///Accept: */*
+#[instrument]
 pub fn parse_request(req: &str) -> HashMap<String, String> {
     let mut parsed_request = HashMap::<String, String>::new();
     let mut first = true;
     for line in req.split('\n'){
         let lower_line = line.to_lowercase();
-        println!("Examining: {}", lower_line);
+        debug!(%lower_line, "current request line being parsed");
         if first {
-            println!("We are in the first loop");
+            debug!("We are in the first loop");
             //now we split it up some more
             let tokens: Vec<&str> = line.split_whitespace().collect();
-            println!("We have {} tokens", tokens.len());
+            debug!(token_count = tokens.len(), "number of tokens");
             let allowd_action = METHODS.iter().any(|a| a==&tokens[0].to_uppercase());
             if !allowd_action {
                 return parsed_request
@@ -55,7 +57,7 @@ pub fn parse_request(req: &str) -> HashMap<String, String> {
                 parsed_request.insert(HOST.to_string(), tokens[1].to_string());
             }
             l if l.starts_with(ACCEPT) => {}
-            _ =>  {println!("unrecognized request part");}
+            _ =>  {warn!("unrecognized request part");}
         }
     }
     parsed_request
