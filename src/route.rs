@@ -1,4 +1,5 @@
 use std::collections::HashMap;
+use anyhow::Result;
 use tracing::{debug, info, warn, instrument};
 
 #[derive(Debug)]
@@ -63,11 +64,16 @@ pub fn parse_request(req: &str) -> HashMap<String, String> {
     parsed_request
 }
 
+pub fn route_post(parsed_request: &HashMap<String, String>)->Result<()>{
+    Ok(())
+}
+
 pub fn route_request(parsed_request: &HashMap<String, String>) -> anyhow::Result<()> {
 
     let action = &parsed_request[ACTION];
     match action.as_str() {
         "GET" => route_get(parsed_request)?,
+        "POST" => route_post(parsed_request)?,
         _ => {
             println!("Nothing else unimplemented!()")
         }
