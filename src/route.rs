@@ -1,5 +1,5 @@
 use std::collections::HashMap;
-use anyhow::Result;
+use anyhow::{Result, bail};
 use tracing::{debug, info, warn, instrument};
 
 #[derive(Debug)]
@@ -25,7 +25,7 @@ const METHODS: &[&str] = &["GET", "POST", "PATCH"];
 ///User-Agent: curl/8.21.0
 ///Accept: */*
 #[instrument]
-pub fn parse_request(req: &str) -> HashMap<String, String> {
+pub fn parse_request(req: &str) -> anyhow::Result<HashMap<String, String>> {
     let mut parsed_request = HashMap::<String, String>::new();
     let mut first = true;
     for line in req.split('\n'){
@@ -38,7 +38,7 @@ pub fn parse_request(req: &str) -> HashMap<String, String> {
             debug!(token_count = tokens.len(), "number of tokens");
             let allowd_action = METHODS.iter().any(|a| a==&tokens[0].to_uppercase());
             if !allowd_action {
-                return parsed_request
+                bail!("Unsupported HTTP method: {}", tokens[0]);
             } 
 
             parsed_request.insert(RAW_REQ_URL.to_string(), line.to_string());
@@ -61,7 +61,7 @@ pub fn parse_request(req: &str) -> HashMap<String, String> {
             _ =>  {warn!("unrecognized request part");}
         }
     }
-    parsed_request
+    Ok(parsed_request)
 }
 
 pub fn route_post(parsed_request: &HashMap<String, String>)->Result<()>{
