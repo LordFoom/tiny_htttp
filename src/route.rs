@@ -36,6 +36,9 @@ pub fn parse_request(req: &str) -> anyhow::Result<HashMap<String, String>> {
             //now we split it up some more
             let tokens: Vec<&str> = line.split_whitespace().collect();
             debug!(token_count = tokens.len(), "number of tokens");
+            if !tokens.len() >= 3 {
+                bail!("Expected at least 3 tokens");
+            }
             let allowd_action = METHODS.iter().any(|a| a==&tokens[0].to_uppercase());
             if !allowd_action {
                 bail!("Unsupported HTTP method: {}", tokens[0]);
