@@ -5,7 +5,7 @@ use tracing::{debug, info, instrument};
 mod route;
 
 #[instrument]
-fn handle_client(mut stream: TcpStream) -> anyhow::Result<()> {
+fn handle_client(stream: &mut TcpStream) -> anyhow::Result<()> {
     debug!("handle_client beginning");
 
     let mut buff = [0;1024];
@@ -15,7 +15,7 @@ fn handle_client(mut stream: TcpStream) -> anyhow::Result<()> {
     debug!(%raw_request, "raw_request received from client");
     let parsed_request = route::parse_request(&raw_request)?;
 
-    route::route_request(&parsed_request, &mut stream)?;
+    route::route_request(&parsed_request, stream)?;
     // println!("parsed_request={parsed_request}");
     Ok(())
 }
@@ -27,7 +27,7 @@ fn main() -> anyhow::Result<()> {
     let listener = TcpListener::bind("127.0.0.1:8080")?;
 
     for stream in listener.incoming() {
-        handle_client(stream?)?;
+        handle_client(&mut stream?)?;
     }
     Ok(())
 

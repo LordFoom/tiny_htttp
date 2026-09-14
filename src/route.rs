@@ -35,9 +35,11 @@ pub fn parse_request(req: &str) -> anyhow::Result<HashMap<String, String>> {
         if first {
             debug!("We are in the first loop");
             //now we split it up some more
+            let tokens = line.split_whitespace().collect::<Vec<&str>>();
             if !tokens.len() >= 3 {
                 bail!("Expected at least 3 tokens");
             }
+
             let allowd_action = METHODS.iter().any(|a| a==&tokens[0].to_uppercase());
             if !allowd_action {
                 bail!("Unsupported HTTP method: {}", tokens[0]);
@@ -66,7 +68,7 @@ pub fn parse_request(req: &str) -> anyhow::Result<HashMap<String, String>> {
     Ok(parsed_request)
 }
 
-pub fn route_post(parsed_request: &HashMap<String, String, stream: &mut TcpStream>)->Result<()>{
+pub fn route_post(parsed_request: &HashMap<String, String>, stream: &mut TcpStream)->anyhow::Result<()>{
     Ok(())
 }
 
@@ -74,8 +76,8 @@ pub fn route_request(parsed_request: &HashMap<String, String>, stream: &mut TcpS
 
     let action = &parsed_request[ACTION];
     match action.as_str() {
-        "GET" => route_get(parsed_request, &mut stream)?,
-        "POST" => route_post(parsed_request, &mut stream)?,
+        "GET" => route_get(parsed_request, stream)?,
+        "POST" => route_post(parsed_request, stream)?,
         _ => {
             println!("Nothing else unimplemented!()")
         }
