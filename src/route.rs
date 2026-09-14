@@ -1,4 +1,5 @@
 use std::collections::HashMap;
+use std::net::TcpStream;
 use anyhow::{Result, bail};
 use tracing::{debug, info, warn, instrument};
 
@@ -34,8 +35,6 @@ pub fn parse_request(req: &str) -> anyhow::Result<HashMap<String, String>> {
         if first {
             debug!("We are in the first loop");
             //now we split it up some more
-            let tokens: Vec<&str> = line.split_whitespace().collect();
-            debug!(token_count = tokens.len(), "number of tokens");
             if !tokens.len() >= 3 {
                 bail!("Expected at least 3 tokens");
             }
@@ -67,16 +66,16 @@ pub fn parse_request(req: &str) -> anyhow::Result<HashMap<String, String>> {
     Ok(parsed_request)
 }
 
-pub fn route_post(parsed_request: &HashMap<String, String>)->Result<()>{
+pub fn route_post(parsed_request: &HashMap<String, String, stream: &mut TcpStream>)->Result<()>{
     Ok(())
 }
 
-pub fn route_request(parsed_request: &HashMap<String, String>) -> anyhow::Result<()> {
+pub fn route_request(parsed_request: &HashMap<String, String>, stream: &mut TcpStream) -> anyhow::Result<()> {
 
     let action = &parsed_request[ACTION];
     match action.as_str() {
-        "GET" => route_get(parsed_request)?,
-        "POST" => route_post(parsed_request)?,
+        "GET" => route_get(parsed_request, &mut stream)?,
+        "POST" => route_post(parsed_request, &mut stream)?,
         _ => {
             println!("Nothing else unimplemented!()")
         }
@@ -84,7 +83,7 @@ pub fn route_request(parsed_request: &HashMap<String, String>) -> anyhow::Result
     Ok(())
 }
 
-pub fn route_get(parsed_request: &HashMap<String, String>) -> anyhow::Result<()> {
+pub fn route_get(parsed_request: &HashMap<String, String>, stream: &mut TcpStream) -> Result<()> {
     let action_str = &parsed_request[ACTION];
     match action_str {
        val if val.starts_with("/hello") => {

@@ -15,7 +15,7 @@ fn handle_client(mut stream: TcpStream) -> anyhow::Result<()> {
     debug!(%raw_request, "raw_request received from client");
     let parsed_request = route::parse_request(&raw_request)?;
 
-    route::route_request(&parsed_request)?;
+    route::route_request(&parsed_request, &mut stream)?;
     // println!("parsed_request={parsed_request}");
     Ok(())
 }
