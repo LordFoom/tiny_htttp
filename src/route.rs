@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 use std::net::TcpStream;
+use std::io::Write;
 use anyhow::{Result, bail};
 use tracing::{debug, info, warn, instrument};
 
@@ -89,6 +90,8 @@ pub fn route_get(parsed_request: &HashMap<String, String>, stream: &mut TcpStrea
     let action_str = &parsed_request[ACTION];
     match action_str {
        val if val.starts_with("/hello") => {
+            let backtext = b"hello to you too!";
+            stream.write(&backtext[0..])?;
             println!("We have hello!");
         },
 
