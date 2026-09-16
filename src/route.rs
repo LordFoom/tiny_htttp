@@ -37,8 +37,8 @@ pub fn parse_request(req: &str) -> anyhow::Result<HashMap<String, String>> {
             debug!("We are in the first loop");
             //now we split it up some more
             let tokens = line.split_whitespace().collect::<Vec<&str>>();
-            if !tokens.len() >= 3 {
-                bail!("Expected at least 3 tokens");
+            if tokens.len() < 3 {
+                bail!("Expected at least 3 tokens, got {} tokens: {:?}", tokens.len(), tokens);
             }
 
             let allowd_action = METHODS.iter().any(|a| a==&tokens[0].to_uppercase());
@@ -80,7 +80,7 @@ pub fn route_request(parsed_request: &HashMap<String, String>, stream: &mut TcpS
         "GET" => route_get(parsed_request, stream)?,
         "POST" => route_post(parsed_request, stream)?,
         _ => {
-            println!("Nothing else unimplemented!()")
+            println!("Nothing else unimplemented!{}", action);
         }
     }
     Ok(())
@@ -91,7 +91,7 @@ pub fn route_get(parsed_request: &HashMap<String, String>, stream: &mut TcpStrea
     match action_str {
        val if val.starts_with("/hello") => {
             let backtext = b"hello to you too!";
-            stream.write(&backtext[0..])?;
+            stream.write_all(&backtext[0..])?;
             println!("We have hello!");
         },
 
