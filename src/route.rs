@@ -80,23 +80,23 @@ pub fn route_request(parsed_request: &HashMap<String, String>, stream: &mut TcpS
         "GET" => route_get(parsed_request, stream)?,
         "POST" => route_post(parsed_request, stream)?,
         _ => {
-            println!("Nothing else unimplemented!{}", action);
+            warn!("Nothing else unimplemented!{}", action);
         }
     }
     Ok(())
 }
 
 pub fn route_get(parsed_request: &HashMap<String, String>, stream: &mut TcpStream) -> Result<()> {
-    let action_str = &parsed_request[ACTION];
+    let action_str = &parsed_request[PATH];
     match action_str {
        val if val.starts_with("/hello") => {
             let backtext = b"hello to you too!";
             stream.write_all(&backtext[0..])?;
-            println!("We have hello!");
+            debug!("We have hello!");
         },
 
         _ => {
-            println!("Nothing else unimplemented!()")
+            warn!("Nothing else unimplemented!()");
         }
     }
     Ok(())
