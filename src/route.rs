@@ -90,13 +90,22 @@ pub fn route_get(parsed_request: &HashMap<String, String>, stream: &mut TcpStrea
     let action_str = &parsed_request[PATH];
     match action_str {
        val if val.starts_with("/hello") => {
-            let backtext = b"hello to you too!";
-            stream.write_all(&backtext[0..])?;
+            let backtext = "hello to you too!";
+            let response = format!(
+            "Http/1.1 200 Ok\r\n\
+             Content-length: {}\r\n\
+             Content-type: {}\r\n\
+             Connection: close\r\n\
+                \r\n\
+                {} ", backtext.len(), "text/plain", backtext,
+            );
+
+            stream.write_all(response.as_bytes())?;
             debug!("We have hello!");
         },
 
         _ => {
-            warn!("Nothing else unimplemented!()");
+            warn!("Nothing else unimplemented!");
         }
     }
     Ok(())
