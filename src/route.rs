@@ -111,6 +111,22 @@ pub fn route_get(parsed_request: &HashMap<String, String>, stream: &mut TcpStrea
     Ok(())
 }
 
+pub fn write_ok_response(content: &str, stream: &mut TcpStream) {
+    write_response("200 Ok", content, stream);
+}
+
+pub fn write_response(http_code: &str, content: &str, &mut TcpStream){
+    let response = format!(
+        "Http/1.1 {}\r\n\
+            Content-length: {}\r\n\
+            Content-type: {}\r\n\
+            Connection: close\r\n\
+            \r\n\
+            {} ", http_code, backtext.len(), "text/plain", backtext,
+    );
+}
+
+
 #[cfg(test)]
 mod tests {
     use super::*;
