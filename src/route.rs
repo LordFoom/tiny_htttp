@@ -111,11 +111,11 @@ pub fn route_get(parsed_request: &HashMap<String, String>, stream: &mut TcpStrea
     Ok(())
 }
 
-pub fn write_ok_response(content: &str, stream: &mut TcpStream) {
-    write_response("200 Ok", content, stream);
+pub fn write_ok_response(content: &str, stream: &mut TcpStream)->anyhow::Result<()> {
+    write_response("200 Ok", content, stream)
 }
 
-pub fn write_response(http_code: &str, content: &str, stream: &mut TcpStream){
+pub fn write_response(http_code: &str, content: &str, stream: &mut TcpStream)->anyhow::Result<()>{
     let response = format!(
         "Http/1.1 {}\r\n\
             Content-length: {}\r\n\
@@ -124,7 +124,8 @@ pub fn write_response(http_code: &str, content: &str, stream: &mut TcpStream){
             \r\n\
             {} ", http_code, content.len(), "text/plain", content,
     );
-    stream.write_all(response.as_bytes());
+    stream.write_all(response.as_bytes())?;
+    Ok(())
 }
 
 
