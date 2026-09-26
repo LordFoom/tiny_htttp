@@ -90,22 +90,14 @@ pub fn route_get(parsed_request: &HashMap<String, String>, stream: &mut TcpStrea
     let action_str = &parsed_request[PATH];
     match action_str {
        val if val.starts_with("/hello") => {
-            let backtext = "hello to you too!";
-            let response = format!(
-            "Http/1.1 200 Ok\r\n\
-             Content-length: {}\r\n\
-             Content-type: {}\r\n\
-             Connection: close\r\n\
-                \r\n\
-                {} ", backtext.len(), "text/plain", backtext,
-            );
-
-            stream.write_all(response.as_bytes())?;
+            write_ok_response("hello to you too!", stream)?;
             debug!("We have hello!");
         },
 
-        _ => {
-            warn!("Nothing else unimplemented!");
+        x => {
+            let err_str = format!("Not an available action: {}", x);
+            write_error_response(&err_str, stream);
+            warn!("Not implemented: {}", x);
         }
     }
     Ok(())
@@ -113,6 +105,10 @@ pub fn route_get(parsed_request: &HashMap<String, String>, stream: &mut TcpStrea
 
 pub fn write_ok_response(content: &str, stream: &mut TcpStream)->anyhow::Result<()> {
     write_response("200 Ok", content, stream)
+}
+
+pub fn write_error_response(content: &str, stream: &mut TcpStream)->anyhow::Result<()> {
+    write_response("400 Bad Request", content, stream)
 }
 
 pub fn write_response(http_code: &str, content: &str, stream: &mut TcpStream)->anyhow::Result<()>{
