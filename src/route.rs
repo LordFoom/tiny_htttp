@@ -12,6 +12,7 @@ pub enum Action {
 }
 
 const RAW_REQ_URL: &str = "raw_request";
+const PARAMS: &str = "params";
 const ACTION: &str = "action";
 const PATH: &str = "path";
 const VERSION: &str = "version";
@@ -96,7 +97,7 @@ pub fn route_get(parsed_request: &HashMap<String, String>, stream: &mut TcpStrea
 
         x => {
             let err_str = format!("Not an available action: {}", x);
-            write_error_response(&err_str, stream);
+            write_error_response(&err_str, stream)?;
             warn!("Not implemented: {}", x);
         }
     }

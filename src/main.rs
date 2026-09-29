@@ -1,6 +1,7 @@
 use std::net::{TcpStream,TcpListener};
 use std::io::Read;
 use tracing::{debug, info, instrument};
+use tracing_subscriber::EnvFilter;
 
 mod route;
 
@@ -24,7 +25,13 @@ fn handle_client(stream: &mut TcpStream) -> anyhow::Result<()> {
 
 fn main() -> anyhow::Result<()> {
 
+    tracing_subscriber::fmt()
+        .with_env_filter(EnvFilter::try_from_default_env()
+        .unwrap_or_else(|_| EnvFilter::new("info")))
+        .init();
+
     let listener = TcpListener::bind("127.0.0.1:8080")?;
+
 
     for stream in listener.incoming() {
         handle_client(&mut stream?)?;
