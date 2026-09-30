@@ -15,6 +15,7 @@ const RAW_REQ_URL: &str = "raw_request";
 const PARAMS: &str = "params";
 const ACTION: &str = "action";
 const PATH: &str = "path";
+const QUERY_PARAMETERS: &str = "query_parameters";
 const VERSION: &str = "version";
 const HOST: &str = "host";
 const USER_AGENT: &str = "user-agent";
@@ -46,10 +47,13 @@ pub fn parse_request(req: &str) -> anyhow::Result<HashMap<String, String>> {
             if !allowd_action {
                 bail!("Unsupported HTTP method: {}", tokens[0]);
             } 
+            let full_path = tokens[1].to_string();
+            let (path, query_params) = parse_query_params(full_path);
 
             parsed_request.insert(RAW_REQ_URL.to_string(), line.to_string());
             parsed_request.insert(ACTION.to_string(), tokens[0].to_string());
-            parsed_request.insert(PATH.to_string(), tokens[1].to_string());
+            parsed_request.insert(PATH.to_string(), path);
+            parsed_request.insert(QUERY_PARAMETERS.to_string(), query_params);
             parsed_request.insert(VERSION.to_string(), tokens[2].to_string());
             first = false;
             continue;
@@ -68,6 +72,14 @@ pub fn parse_request(req: &str) -> anyhow::Result<HashMap<String, String>> {
         }
     }
     Ok(parsed_request)
+}
+
+pub fn parse_query_params(full_path: &str) -> HashMap<String, String> {
+    let mut params = HashMap::new();
+    //take eg /hello?key1=val1&key2=val2,etc
+    if !full_path.contains('?') {
+        return params;
+    }
 }
 
 pub fn route_post(parsed_request: &HashMap<String, String>, stream: &mut TcpStream)->anyhow::Result<()>{
