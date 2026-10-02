@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 use std::net::TcpStream;
 use std::io::Write;
-use anyhow::{Result, bail};
+use anyhow::{Error, Result, bail};
 use tracing::{debug, info, warn, instrument};
 
 #[derive(Debug)]
@@ -48,7 +48,7 @@ pub fn parse_request(req: &str) -> anyhow::Result<HashMap<String, String>> {
                 bail!("Unsupported HTTP method: {}", tokens[0]);
             } 
             let full_path = tokens[1].to_string();
-            let (path, query_params) = parse_query_params(full_path);
+            let (path, query_params) = parse_query_params(full_path)?;
 
             parsed_request.insert(RAW_REQ_URL.to_string(), line.to_string());
             parsed_request.insert(ACTION.to_string(), tokens[0].to_string());
@@ -74,12 +74,35 @@ pub fn parse_request(req: &str) -> anyhow::Result<HashMap<String, String>> {
     Ok(parsed_request)
 }
 
-pub fn parse_query_params(full_path: &str) -> HashMap<String, String> {
+pub fn parse_query_params(full_path: &str) -> anyhow::Result<HashMap<String, String>> {
     let mut params = HashMap::new();
     //take eg /hello?key1=val1&key2=val2,etc
     if !full_path.contains('?') {
-        return params;
+        return Ok(params);
     }
+    // let head_tail: Vec<&str> = full_path.split('?').collect();
+    // if head_tail.len() < 2 {
+    //     return Ok(params);
+    // }
+    // if head_tail.len() > 2 {
+    //     return Error("Bad action string: {?:}" + head_tail);
+    // }
+
+    // let head = head_tail[0];
+    // let tail = head_tail[1];
+
+    if let Some((path, query)) = full_path.split_once('?') {
+        //parse the query map
+        construct_query_params_map(query, &mut params);
+    } else {//some weird garbage, we return an empty map
+        return Ok(params)
+    }
+    Ok(params)
+}
+
+pub fn construct_query_params_map(key_val_str: &str, map: &mut HashMap<String, String>)->anyhow::Result<()>{
+
+    Ok(())
 }
 
 pub fn route_post(parsed_request: &HashMap<String, String>, stream: &mut TcpStream)->anyhow::Result<()>{
