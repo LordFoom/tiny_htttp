@@ -5,7 +5,7 @@ use anyhow::{Error, Result, bail};
 use tracing::{debug, info, warn, instrument};
 
 #[derive(Debug)]
-pub enum Action {
+pub enum Method {
     GET,
     POST,
     PATCH,
@@ -22,7 +22,7 @@ const HOST: &str = "host";
 const USER_AGENT: &str = "user-agent";
 const ACCEPT: &str = "accept";
 
-const METHODS: &[&str] = &["GET", "POST", "PATCH"];
+// const METHODS: &[&str] = &["GET", "POST", "PATCH"];
 
 ///EG
 ///GET /hello HTTP/1.1

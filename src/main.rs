@@ -4,6 +4,7 @@ use tracing::{debug, info, instrument};
 use tracing_subscriber::EnvFilter;
 
 mod route;
+mod model;
 
 #[instrument]
 fn handle_client(stream: &mut TcpStream) -> anyhow::Result<()> {
