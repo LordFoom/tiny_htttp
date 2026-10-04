@@ -15,6 +15,7 @@ const RAW_REQ_URL: &str = "raw_request";
 const PARAMS: &str = "params";
 const ACTION: &str = "action";
 const PATH: &str = "path";
+const FULL_PATH: &str = "full_path";
 const QUERY_PARAMETERS: &str = "query_parameters";
 const VERSION: &str = "version";
 const HOST: &str = "host";
@@ -48,7 +49,8 @@ pub fn parse_request(req: &str) -> anyhow::Result<HashMap<String, String>> {
                 bail!("Unsupported HTTP method: {}", tokens[0]);
             } 
             let full_path = tokens[1].to_string();
-            let (path, query_params) = parse_query_params(full_path)?;
+            parsed_request.insert(FULL_PATH.to_string(), full_path);
+            let (path, query_params) = parse_full_path_into_path_and_query_parameters(&full_path)?;
 
             parsed_request.insert(RAW_REQ_URL.to_string(), line.to_string());
             parsed_request.insert(ACTION.to_string(), tokens[0].to_string());
@@ -74,11 +76,11 @@ pub fn parse_request(req: &str) -> anyhow::Result<HashMap<String, String>> {
     Ok(parsed_request)
 }
 
-pub fn parse_query_params(full_path: &str) -> anyhow::Result<HashMap<String, String>> {
+pub fn parse_full_path_into_path_and_query_parameters(full_path: &str) -> anyhow::Result<(String, HashMap<String, String>)> {
     let mut params = HashMap::new();
     //take eg /hello?key1=val1&key2=val2,etc
     if !full_path.contains('?') {
-        return Ok(params);
+        return Ok((full_path.to_string(), params));
     }
     // let head_tail: Vec<&str> = full_path.split('?').collect();
     // if head_tail.len() < 2 {
@@ -93,11 +95,12 @@ pub fn parse_query_params(full_path: &str) -> anyhow::Result<HashMap<String, Str
 
     if let Some((path, query)) = full_path.split_once('?') {
         //parse the query map
-        construct_query_params_map(query, &mut params);
-    } else {//some weird garbage, we return an empty map
-        return Ok(params)
+        construct_query_params_map(query, &mut params)?;
+        return Ok((path.to_string(), params))
+    } else {//some weird garbage, we return  an error
+        bail!("Bad path+params: {}", full_path)
+        // return Ok(full_path, params)
     }
-    Ok(params)
 }
 
 pub fn construct_query_params_map(key_val_str: &str, map: &mut HashMap<String, String>)->anyhow::Result<()>{
