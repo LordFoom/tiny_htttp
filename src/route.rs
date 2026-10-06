@@ -3,13 +3,10 @@ use std::net::TcpStream;
 use std::io::Write;
 use anyhow::{Error, Result, bail};
 use tracing::{debug, info, warn, instrument};
+mod model;
+use model::{Method, Request};
+// use crate::METHOD;
 
-#[derive(Debug)]
-pub enum Method {
-    GET,
-    POST,
-    PATCH,
-}
 
 const RAW_REQ_URL: &str = "raw_request";
 const PARAMS: &str = "params";
@@ -30,7 +27,8 @@ const ACCEPT: &str = "accept";
 ///User-Agent: curl/8.21.0
 ///Accept: */*
 #[instrument]
-pub fn parse_request(req: &str) -> anyhow::Result<HashMap<String, String>> {
+pub fn parse_request(req: &str) -> anyhow::Result<Request> {
+    let request = Request::new();
     let mut parsed_request = HashMap::<String, String>::new();
     let mut first = true;
     for line in req.split('\n'){
@@ -44,7 +42,7 @@ pub fn parse_request(req: &str) -> anyhow::Result<HashMap<String, String>> {
                 bail!("Expected at least 3 tokens, got {} tokens: {:?}", tokens.len(), tokens);
             }
 
-            let allowd_action = METHODS.iter().any(|a| a==&tokens[0].to_uppercase());
+            let allowd_action = Method.iter().any(|a| a==&tokens[0].to_uppercase());
             if !allowd_action {
                 bail!("Unsupported HTTP method: {}", tokens[0]);
             } 
