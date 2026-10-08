@@ -3,8 +3,7 @@ use std::net::TcpStream;
 use std::io::Write;
 use anyhow::{Error, Result, bail};
 use tracing::{debug, info, warn, instrument};
-mod model;
-use model::{Method, Request};
+use crate::model::{Method, Request};
 // use crate::METHOD;
 
 
@@ -28,50 +27,61 @@ const ACCEPT: &str = "accept";
 ///Accept: */*
 #[instrument]
 pub fn parse_request(req: &str) -> anyhow::Result<Request> {
-    let request = Request::new();
-    let mut parsed_request = HashMap::<String, String>::new();
-    let mut first = true;
-    for line in req.split('\n'){
-        let lower_line = line.to_lowercase();
-        debug!(%lower_line, "current request line being parsed");
-        if first {
-            debug!("We are in the first loop");
-            //now we split it up some more
-            let tokens = line.split_whitespace().collect::<Vec<&str>>();
-            if tokens.len() < 3 {
-                bail!("Expected at least 3 tokens, got {} tokens: {:?}", tokens.len(), tokens);
-            }
+    let mut lines = req.lines();
+    let request_line = lines.next().ok_or_else(|| anyhow::anyhow!("Emppity Request"))?;
 
-            let allowd_action = Method.iter().any(|a| a==&tokens[0].to_uppercase());
-            if !allowd_action {
-                bail!("Unsupported HTTP method: {}", tokens[0]);
-            } 
-            let full_path = tokens[1].to_string();
-            parsed_request.insert(FULL_PATH.to_string(), full_path);
-            let (path, query_params) = parse_full_path_into_path_and_query_parameters(&full_path)?;
+    let tokens: Vec<&str> = request_line.split_whitespace().collect();
 
-            parsed_request.insert(RAW_REQ_URL.to_string(), line.to_string());
-            parsed_request.insert(ACTION.to_string(), tokens[0].to_string());
-            parsed_request.insert(PATH.to_string(), path);
-            parsed_request.insert(QUERY_PARAMETERS.to_string(), query_params);
-            parsed_request.insert(VERSION.to_string(), tokens[2].to_string());
-            first = false;
-            continue;
-        }
-        match lower_line{
-            l if l.starts_with(HOST) => {
-                let tokens: Vec<&str> = line.split_whitespace().collect();
-                parsed_request.insert(HOST.to_string(), tokens[1].to_string());
-            }
-            l if l.starts_with(USER_AGENT) => {
-                let tokens: Vec<&str> = line.split_whitespace().collect();
-                parsed_request.insert(HOST.to_string(), tokens[1].to_string());
-            }
-            l if l.starts_with(ACCEPT) => {}
-            _ =>  {warn!("unrecognized request part");}
-        }
+    if tokens.len() < 3 {
+        bail!("Expected at least 3 tokens, got {}, tokens: {:?}", tokens.len(), tokens);
     }
-    Ok(parsed_request)
+
+    let method_text = tokens[0];
+    let method = Method::from_str(method_text);
+    // let request = Request::new
+    // let mut parsed_request = HashMap::<String, String>::new();
+    // let mut first = true;
+    // for line in req.split('\n'){
+    //     let lower_line = line.to_lowercase();
+    //     debug!(%lower_line, "current request line being parsed");
+    //     if first {
+    //         debug!("We are in the first loop");
+    //         //now we split it up some more
+    //         let tokens = line.split_whitespace().collect::<Vec<&str>>();
+    //         if tokens.len() < 3 {
+    //             bail!("Expected at least 3 tokens, got {} tokens: {:?}", tokens.len(), tokens);
+    //         }
+    //
+    //         let allowd_action = Method.iter().any(|a| a==&tokens[0].to_uppercase());
+    //         if !allowd_action {
+    //             bail!("Unsupported HTTP method: {}", tokens[0]);
+    //         } 
+    //         let full_path = tokens[1].to_string();
+    //         parsed_request.insert(FULL_PATH.to_string(), full_path);
+    //         let (path, query_params) = parse_full_path_into_path_and_query_parameters(&full_path)?;
+    //
+    //         parsed_request.insert(RAW_REQ_URL.to_string(), line.to_string());
+    //         parsed_request.insert(ACTION.to_string(), tokens[0].to_string());
+    //         parsed_request.insert(PATH.to_string(), path);
+    //         parsed_request.insert(QUERY_PARAMETERS.to_string(), query_params);
+    //         parsed_request.insert(VERSION.to_string(), tokens[2].to_string());
+    //         first = false;
+    //         continue;
+    //     }
+    //     match lower_line{
+    //         l if l.starts_with(HOST) => {
+    //             let tokens: Vec<&str> = line.split_whitespace().collect();
+    //             parsed_request.insert(HOST.to_string(), tokens[1].to_string());
+    //         }
+    //         l if l.starts_with(USER_AGENT) => {
+    //             let tokens: Vec<&str> = line.split_whitespace().collect();
+    //             parsed_request.insert(HOST.to_string(), tokens[1].to_string());
+    //         }
+    //         l if l.starts_with(ACCEPT) => {}
+    //         _ =>  {warn!("unrecognized request part");}
+    //     }
+    // }
+    // Ok(parsed_request)
 }
 
 pub fn parse_full_path_into_path_and_query_parameters(full_path: &str) -> anyhow::Result<(String, HashMap<String, String>)> {
