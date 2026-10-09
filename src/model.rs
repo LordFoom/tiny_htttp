@@ -23,13 +23,13 @@ impl Method {
 
 #[derive(Debug)]
 pub struct Request {
-    method: Method,
-    params: HashMap<String, String>,
-    path: String,
+    pub method: Method,
+    pub params: HashMap<String, String>,
+    pub path: String,
     ///The full path as we received it
-    full_path: String,
-    version: String,
-    host: String,
-    user_agent: String,
-    headers: HashMap<String, String>,
+    pub full_path: String,
+    pub version: String,
+    pub host: String,
+    pub user_agent: String,
+    pub headers: HashMap<String, String>,
 }

@@ -3,7 +3,7 @@ use std::net::TcpStream;
 use std::io::Write;
 use anyhow::{Error, Result, bail};
 use tracing::{debug, info, warn, instrument};
-use crate::model::{Method, Request};
+use crate::model::{Method::{self, GET}, Request};
 // use crate::METHOD;
 
 
@@ -120,14 +120,13 @@ pub fn route_post(parsed_request: &HashMap<String, String>, stream: &mut TcpStre
     Ok(())
 }
 
-pub fn route_request(parsed_request: &HashMap<String, String>, stream: &mut TcpStream) -> anyhow::Result<()> {
+pub fn route_request(parsed_request: &Request, stream: &mut TcpStream) -> anyhow::Result<()> {
 
-    let action = &parsed_request[ACTION];
-    match action.as_str() {
-        "GET" => route_get(parsed_request, stream)?,
-        "POST" => route_post(parsed_request, stream)?,
+    match parsed_request.method{
+        GET => route_get(parsed_request, stream),
+        POST => route_post(parsed_request, stream),
         _ => {
-            warn!("Nothing else unimplemented!{}", action);
+            anyhow::bail!("Nothing else unimplemented!{}", action);
         }
     }
     Ok(())
