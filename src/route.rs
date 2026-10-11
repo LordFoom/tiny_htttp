@@ -109,6 +109,7 @@ pub fn parse_full_path_into_path_and_query_parameters(full_path: &str) -> anyhow
         bail!("Bad path+params: {}", full_path)
         // return Ok(full_path, params)
     }
+    // Ok((path, params))
 }
 
 pub fn construct_query_params_map(key_val_str: &str, map: &mut HashMap<String, String>)->anyhow::Result<()>{
@@ -116,7 +117,7 @@ pub fn construct_query_params_map(key_val_str: &str, map: &mut HashMap<String, S
     Ok(())
 }
 
-pub fn route_post(parsed_request: &HashMap<String, String>, stream: &mut TcpStream)->anyhow::Result<()>{
+pub fn route_post(parsed_request: &Request, stream: &mut TcpStream)->anyhow::Result<()>{
     Ok(())
 }
 
@@ -128,11 +129,11 @@ pub fn route_request(parsed_request: &Request, stream: &mut TcpStream) -> anyhow
         _ => {
             anyhow::bail!("Nothing else unimplemented!{}", action);
         }
-    }
+    }?;
     Ok(())
 }
 
-pub fn route_get(parsed_request: &HashMap<String, String>, stream: &mut TcpStream) -> Result<()> {
+pub fn route_get(parsed_request: &Request, stream: &mut TcpStream) -> Result<()> {
     let action_str = &parsed_request[PATH];
     match action_str {
        val if val.starts_with("/hello") => {
