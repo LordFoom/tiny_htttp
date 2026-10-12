@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 use std::net::TcpStream;
 use std::io::Write;
-use anyhow::{Error, Result, bail};
+use anyhow::{Error, Ok, Result, bail};
 use tracing::{debug, info, warn, instrument};
 use crate::model::{Method::{self, GET}, Request};
 // use crate::METHOD;
@@ -38,6 +38,16 @@ pub fn parse_request(req: &str) -> anyhow::Result<Request> {
 
     let method_text = tokens[0];
     let method = Method::from_str(method_text);
+
+    let request = Request{ method,
+        params: todo!(),
+        path: todo!(),
+        full_path: todo!(),
+        version: todo!(),
+        host: todo!(),
+        user_agent: todo!(),
+        headers: todo!() };
+    Ok(request)
     // let request = Request::new
     // let mut parsed_request = HashMap::<String, String>::new();
     // let mut first = true;
@@ -134,7 +144,8 @@ pub fn route_request(parsed_request: &Request, stream: &mut TcpStream) -> anyhow
 }
 
 pub fn route_get(parsed_request: &Request, stream: &mut TcpStream) -> Result<()> {
-    let action_str = &parsed_request[PATH];
+    // let action_str = &parsed_request[PATH];
+    let action_str = &parsed_request.path;
     match action_str {
        val if val.starts_with("/hello") => {
             write_ok_response("hello to you too!", stream)?;
