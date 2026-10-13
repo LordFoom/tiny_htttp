@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 use anyhow::bail;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum Method {
     GET,
     POST,

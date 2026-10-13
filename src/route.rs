@@ -37,7 +37,7 @@ pub fn parse_request(req: &str) -> anyhow::Result<Request> {
     }
 
     let method_text = tokens[0];
-    let method = Method::from_str(method_text);
+    let method = Method::from_str(method_text)?;
 
     let request = Request{ method,
         params: todo!(),
@@ -133,11 +133,11 @@ pub fn route_post(parsed_request: &Request, stream: &mut TcpStream)->anyhow::Res
 
 pub fn route_request(parsed_request: &Request, stream: &mut TcpStream) -> anyhow::Result<()> {
 
-    match parsed_request.method{
-        GET => route_get(parsed_request, stream),
-        POST => route_post(parsed_request, stream),
-        _ => {
-            anyhow::bail!("Nothing else unimplemented!{}", action);
+    match &parsed_request.method {
+        Method::GET => route_get(parsed_request, stream),
+        Method::POST => route_post(parsed_request, stream),
+        unknown_action => {
+            anyhow::bail!("Nothing else unimplemented!{:?}", unknown_action);
         }
     }?;
     Ok(())
