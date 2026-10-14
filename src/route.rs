@@ -171,12 +171,12 @@ pub fn write_error_response(content: &str, stream: &mut TcpStream)->anyhow::Resu
 
 pub fn write_response(http_code: &str, content: &str, stream: &mut TcpStream)->anyhow::Result<()>{
     let response = format!(
-        "Http/1.1 {}\r\n\
+        "HTTP/1.1 {}\r\n\
             Content-length: {}\r\n\
             Content-type: {}\r\n\
             Connection: close\r\n\
             \r\n\
-            {} ", http_code, content.len(), "text/plain", content,
+            {}", http_code, content.len(), "text/plain", content,
     );
     stream.write_all(response.as_bytes())?;
     Ok(())
