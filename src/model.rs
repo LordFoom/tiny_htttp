@@ -31,5 +31,6 @@ pub struct Request {
     pub version: String,
     pub host: String,
     pub user_agent: String,
+    pub accept: String,
     pub headers: HashMap<String, String>,
 }

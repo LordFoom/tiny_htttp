@@ -42,21 +42,40 @@ pub fn parse_request(req: &str) -> anyhow::Result<Request> {
 
     let (path, params) = parse_full_path_into_path_and_query_parameters(&full_path)?;
 
+    let mut host;
+    let mut user_agent;
+    let mut accept;
     for line in lines {
         let lower_line = line.to_lowercase();
         match lower_line {
+            l if l.starts_with(HOST) => {
+                let tokens: Vec<&str> = line.split_whitespace().collect();
+                host = tokens[1].to_string();
 
+            }
+            l if l.starts_with(USER_AGENT) => {
+                let tokens: Vec<&str> = line.split_whitespace().collect();
+                user_agent = tokens[1].to_string();
+            }
+
+            l if l.starts_with(ACCEPT) => {
+                let tokens: Vec<&str> = line.split_whitespace().collect();
+                user_agent = tokens[1].to_string();
+            }
+            _ =>  {warn!("unrecognized request part");}
         }
 
     }
+
+
 
     let request = Request{ method,
         params,
         path,
         full_path: full_path.to_string(),
         version: todo!(),
-        host: todo!(),
-        user_agent: todo!(),
+        host,
+        user_agent,
         headers: todo!() };
     Ok(request)
     // let request = Request::new
