@@ -40,11 +40,16 @@ pub fn parse_request(req: &str) -> anyhow::Result<Request> {
     let method = Method::from_str(method_text)?;
     let full_path = tokens[1];
 
-    for i in 1..lines.len() {
-        let line = lines[i];
+    let (path, params) = parse_full_path_into_path_and_query_parameters(&full_path)?;
+
+    for line in lines {
+        let lower_line = line.to_lowercase();
+        match lower_line {
+
+        }
 
     }
-    let (path, params) = parse_full_path_into_path_and_query_parameters(&full_path)?;
+
     let request = Request{ method,
         params,
         path,
