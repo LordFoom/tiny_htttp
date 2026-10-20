@@ -42,9 +42,9 @@ pub fn parse_request(req: &str) -> anyhow::Result<Request> {
 
     let (path, params) = parse_full_path_into_path_and_query_parameters(&full_path)?;
 
-    let mut host;
-    let mut user_agent;
-    let mut accept;
+    let mut host="unknown_host".to_string();
+    let mut user_agent="unknow_user_agent".to_string();
+    let mut accept="accept_unknown".to_string();
     for line in lines {
         let lower_line = line.to_lowercase();
         match lower_line {
@@ -60,7 +60,7 @@ pub fn parse_request(req: &str) -> anyhow::Result<Request> {
 
             l if l.starts_with(ACCEPT) => {
                 let tokens: Vec<&str> = line.split_whitespace().collect();
-                user_agent = tokens[1].to_string();
+                accept = tokens[1].to_string();
             }
             _ =>  {warn!("unrecognized request part");}
         }
@@ -76,6 +76,7 @@ pub fn parse_request(req: &str) -> anyhow::Result<Request> {
         version: todo!(),
         host,
         user_agent,
+        accept,
         headers: todo!() };
     Ok(request)
     // let request = Request::new
