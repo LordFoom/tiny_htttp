@@ -39,7 +39,7 @@ pub fn parse_request(req: &str) -> anyhow::Result<Request> {
     let method_text = tokens[0];
     let method = Method::from_str(method_text)?;
     let full_path = tokens[1];
-    let version = tokens[2];
+    let version = tokens[2].to_string();
 
     let (path, params) = parse_full_path_into_path_and_query_parameters(&full_path)?;
 
@@ -74,7 +74,7 @@ pub fn parse_request(req: &str) -> anyhow::Result<Request> {
         params,
         path,
         full_path: full_path.to_string(),
-        version: todo!(),
+        version,
         host,
         user_agent,
         accept,
