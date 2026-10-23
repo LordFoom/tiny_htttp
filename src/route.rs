@@ -46,25 +46,36 @@ pub fn parse_request(req: &str) -> anyhow::Result<Request> {
     let mut host="unknown_host".to_string();
     let mut user_agent="unknow_user_agent".to_string();
     let mut accept="accept_unknown".to_string();
+    let mut headers = HashMap::new();
     for line in lines {
-        let lower_line = line.to_lowercase();
-        match lower_line {
-            l if l.starts_with(HOST) => {
-                let tokens: Vec<&str> = line.split_whitespace().collect();
-                host = tokens[1].to_string();
-
-            }
-            l if l.starts_with(USER_AGENT) => {
-                let tokens: Vec<&str> = line.split_whitespace().collect();
-                user_agent = tokens[1].to_string();
-            }
-
-            l if l.starts_with(ACCEPT) => {
-                let tokens: Vec<&str> = line.split_whitespace().collect();
-                accept = tokens[1].to_string();
-            }
-            _ =>  {warn!("unrecognized request part");}
+        if line.is_empty() {
+            break;
         }
+
+        let lower_line = line.to_lowercase();
+        let Some(key,val) = lower_line.split_once(':') else{
+           bail!("Malformed header: {}", line);
+        };
+
+
+
+        // match lower_line {
+        //     l if l.starts_with(HOST) => {
+        //         let tokens: Vec<&str> = line.split_whitespace().collect();
+        //         host = tokens[1].to_string();
+        //
+        //     }
+        //     l if l.starts_with(USER_AGENT) => {
+        //         let tokens: Vec<&str> = line.split_whitespace().collect();
+        //         user_agent = tokens[1].to_string();
+        //     }
+        //
+        //     l if l.starts_with(ACCEPT) => {
+        //         let tokens: Vec<&str> = line.split_whitespace().collect();
+        //         accept = tokens[1].to_string();
+        //     }
+        //     _ =>  {warn!("unrecognized request part");}
+        // }
 
     }
 
