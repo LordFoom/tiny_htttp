@@ -46,17 +46,18 @@ pub fn parse_request(req: &str) -> anyhow::Result<Request> {
     let mut host="unknown_host".to_string();
     let mut user_agent="unknow_user_agent".to_string();
     let mut accept="accept_unknown".to_string();
-    let mut headers = HashMap::new();
+    let mut headers: HashMap<String, String> = HashMap::new::<>();
     for line in lines {
         if line.is_empty() {
             break;
         }
 
         let lower_line = line.to_lowercase();
-        let Some(key,val) = lower_line.split_once(':') else{
+        let Some((key,val)) = lower_line.split_once(':') else{
            bail!("Malformed header: {}", line);
         };
 
+        headers.insert(key.to_string(), val.to_string());
 
 
         // match lower_line {
