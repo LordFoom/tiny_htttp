@@ -87,10 +87,7 @@ pub fn parse_request(req: &str) -> anyhow::Result<Request> {
         path,
         full_path: full_path.to_string(),
         version,
-        host,
-        user_agent,
-        accept,
-        headers: todo!() };
+        headers};
     Ok(request)
     // let request = Request::new
     // let mut parsed_request = HashMap::<String, String>::new();

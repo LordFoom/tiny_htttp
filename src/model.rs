@@ -29,9 +29,6 @@ pub struct Request {
     ///The full path as we received it
     pub full_path: String,
     pub version: String,
-    pub host: String,
-    pub user_agent: String,
-    pub accept: String,
     ///This should actually replace everything above that is not path related :|
     pub headers: HashMap<String, String>,
 }
