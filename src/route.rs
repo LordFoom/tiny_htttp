@@ -59,25 +59,6 @@ pub fn parse_request(req: &str) -> anyhow::Result<Request> {
 
         headers.insert(key.to_string(), val.to_string());
 
-
-        // match lower_line {
-        //     l if l.starts_with(HOST) => {
-        //         let tokens: Vec<&str> = line.split_whitespace().collect();
-        //         host = tokens[1].to_string();
-        //
-        //     }
-        //     l if l.starts_with(USER_AGENT) => {
-        //         let tokens: Vec<&str> = line.split_whitespace().collect();
-        //         user_agent = tokens[1].to_string();
-        //     }
-        //
-        //     l if l.starts_with(ACCEPT) => {
-        //         let tokens: Vec<&str> = line.split_whitespace().collect();
-        //         accept = tokens[1].to_string();
-        //     }
-        //     _ =>  {warn!("unrecognized request part");}
-        // }
-
     }
 
 
@@ -89,50 +70,6 @@ pub fn parse_request(req: &str) -> anyhow::Result<Request> {
         version,
         headers};
     Ok(request)
-    // let request = Request::new
-    // let mut parsed_request = HashMap::<String, String>::new();
-    // let mut first = true;
-    // for line in req.split('\n'){
-    //     let lower_line = line.to_lowercase();
-    //     debug!(%lower_line, "current request line being parsed");
-    //     if first {
-    //         debug!("We are in the first loop");
-    //         //now we split it up some more
-    //         let tokens = line.split_whitespace().collect::<Vec<&str>>();
-    //         if tokens.len() < 3 {
-    //             bail!("Expected at least 3 tokens, got {} tokens: {:?}", tokens.len(), tokens);
-    //         }
-    //
-    //         let allowd_action = Method.iter().any(|a| a==&tokens[0].to_uppercase());
-    //         if !allowd_action {
-    //             bail!("Unsupported HTTP method: {}", tokens[0]);
-    //         } 
-    //         let full_path = tokens[1].to_string();
-    //         parsed_request.insert(FULL_PATH.to_string(), full_path);
-    //         let (path, query_params) = parse_full_path_into_path_and_query_parameters(&full_path)?;
-    //
-    //         parsed_request.insert(RAW_REQ_URL.to_string(), line.to_string());
-    //         parsed_request.insert(ACTION.to_string(), tokens[0].to_string());
-    //         parsed_request.insert(PATH.to_string(), path);
-    //         parsed_request.insert(QUERY_PARAMETERS.to_string(), query_params);
-    //         parsed_request.insert(VERSION.to_string(), tokens[2].to_string());
-    //         first = false;
-    //         continue;
-    //     }
-    //     match lower_line{
-    //         l if l.starts_with(HOST) => {
-    //             let tokens: Vec<&str> = line.split_whitespace().collect();
-    //             parsed_request.insert(HOST.to_string(), tokens[1].to_string());
-    //         }
-    //         l if l.starts_with(USER_AGENT) => {
-    //             let tokens: Vec<&str> = line.split_whitespace().collect();
-    //             parsed_request.insert(HOST.to_string(), tokens[1].to_string());
-    //         }
-    //         l if l.starts_with(ACCEPT) => {}
-    //         _ =>  {warn!("unrecognized request part");}
-    //     }
-    // }
-    // Ok(parsed_request)
 }
 
 pub fn parse_full_path_into_path_and_query_parameters(full_path: &str) -> anyhow::Result<(String, HashMap<String, String>)> {
@@ -192,6 +129,11 @@ pub fn route_get(parsed_request: &Request, stream: &mut TcpStream) -> Result<()>
             write_ok_response("hello to you too!", stream)?;
             debug!("We have hello!");
         },
+
+        val if val.starts_with("/print_headers") => {
+            let header_str = format!("headers: {:?}", parsed_request.headers);
+            write_ok_response(&header_str, stream)?;
+        }
 
         x => {
             let err_str = format!("Not an available action: {}", x);
